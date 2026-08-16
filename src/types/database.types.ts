@@ -5,6 +5,8 @@ export type StopType = 'pickup' | 'delivery';
 export type SafetyRating = 'Satisfactory' | 'Conditional' | 'Unsatisfactory' | 'None';
 export type OperatingStatus = 'Active' | 'Inactive' | 'Unauthorized';
 
+export type DocumentType = 'rate_con' | 'bol' | 'invoice' | 'other';
+
 export interface Database {
   public: {
     Tables: {
@@ -66,7 +68,20 @@ export interface Database {
         };
         Insert: Omit<Database['public']['Tables']['carriers']['Row'], 'id' | 'created_at' | 'updated_at' | 'assigned_load_count'>;
         Update: Partial<Database['public']['Tables']['carriers']['Insert']>;
-      }
+      };
+      documents: {
+        Row: {
+          id: string;
+          load_id: string;
+          doc_type: DocumentType;
+          file_name: string;
+          file_url: string | null;
+          signature_base64: string | null;
+          created_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['documents']['Row'], 'id' | 'created_at'>;
+        Update: Partial<Database['public']['Tables']['documents']['Insert']>;
+      };
     };
   };
 }
@@ -77,3 +92,5 @@ export type LoadStopRow = Database['public']['Tables']['load_stops']['Row'];
 export type LoadStopInsert = Database['public']['Tables']['load_stops']['Insert'];
 export type CarrierRow = Database['public']['Tables']['carriers']['Row'];
 export type CarrierInsert = Database['public']['Tables']['carriers']['Insert'];
+export type DocumentRow = Database['public']['Tables']['documents']['Row'];
+export type DocumentInsert = Database['public']['Tables']['documents']['Insert'];

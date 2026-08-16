@@ -1,46 +1,108 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+'use client'
+
+import { useEffect, useState, use } from 'react'
 import { notFound } from 'next/navigation'
-import { LoadRow } from '@/types/database.types'
+import { createClient } from '@/lib/supabase/client'
+import { LoadRow, LoadStopRow, CarrierRow } from '@/types/database.types'
 import LoadStatusBadge from '@/components/loads/LoadStatusBadge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { MapPin, FileText, Truck, DollarSign } from 'lucide-react'
+import { MapPin, FileText, Truck, DollarSign, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import SignaturePad from '@/components/documents/SignaturePad'
+import { generateRateConfirmation } from '@/lib/pdf'
 
-export default async function LoadDetailPage(props: { params: Promise<{ id: string }> }) {
-  const params = await props.params;
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-      },
+export default function LoadDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
+
+  const [load, setLoad] = useState<LoadRow | null>(null)
+  const [stops, setStops] = useState<LoadStopRow[]>([])
+  const [carrier, setCarrier] = useState<CarrierRow | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  const [sigPadOpen, setSigPadOpen] = useState(false)
+  const supabase = createClient()
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true)
+
+      const { data: loadData, error: loadError } = await supabase
+        .from('loads')
+        .select('*')
+        .eq('id', params.id)
+        .single()
+
+      if (loadError || !loadData) {
+         setLoading(false)
+         return
+      }
+      setLoad(loadData)
+
+      const { data: stopsData } = await supabase
+        .from('load_stops')
+        .select('*')
+        .eq('load_id', loadData.id)
+        .order('stop_sequence', { ascending: true })
+
+      if (stopsData) setStops(stopsData)
+
+      if (loadData.carrier_id) {
+        const { data: carrierData } = await supabase
+          .from('carriers')
+          .select('*')
+          .eq('id', loadData.carrier_id)
+          .single()
+
+        if (carrierData) setCarrier(carrierData)
+      }
+
+      setLoading(false)
     }
-  )
+    fetchData()
+  }, [params.id, supabase])
 
-  const { data: load, error: loadError } = await supabase
-    .from('loads')
-    .select('*')
-    .eq('id', params.id)
-    .single()
+  const handleGenerateRateCon = async (signatureBase64: string) => {
+    if (!load) return
 
-  if (loadError || !load) {
-    notFound()
+    try {
+      // 1. Generate PDF Blob
+      const pdfBlob = await generateRateConfirmation(load, stops, carrier, signatureBase64)
+
+      // 2. Trigger browser download
+      const url = URL.createObjectURL(pdfBlob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `Rate_Confirmation_${load.reference_number}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+
+      // 3. Save record to Supabase
+      const { error: dbError } = await supabase
+        .from('documents')
+        .insert({
+          load_id: load.id,
+          doc_type: 'rate_con',
+          file_name: `Rate_Confirmation_${load.reference_number}.pdf`,
+          signature_base64: signatureBase64
+        })
+
+      if (dbError) {
+        console.error('Error saving document record:', dbError)
+      } else {
+        alert('Rate Confirmation generated and logged successfully.')
+      }
+
+      setSigPadOpen(false)
+    } catch (error) {
+      console.error('Error generating rate con:', error)
+      alert('Failed to generate Rate Confirmation.')
+    }
   }
 
-  const { data: stops, error: stopsError } = await supabase
-    .from('load_stops')
-    .select('*')
-    .eq('load_id', load.id)
-    .order('stop_sequence', { ascending: true })
-
-  if (stopsError) {
-    console.error('Error fetching stops:', stopsError)
-  }
+  if (loading) return <div className="text-white p-8 text-center">Loading load details...</div>
+  if (!load) return notFound()
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
@@ -53,9 +115,16 @@ export default async function LoadDetailPage(props: { params: Promise<{ id: stri
           </div>
           <p className="text-zinc-400">Created on {new Date(load.created_at).toLocaleDateString()}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button variant="outline" className="bg-transparent border-zinc-700 text-white hover:bg-zinc-800">
             Edit Load
+          </Button>
+          <Button
+            className="bg-purple-600 hover:bg-purple-700 text-white"
+            onClick={() => setSigPadOpen(true)}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Generate Rate Con
           </Button>
           <Button className="bg-blue-600 hover:bg-blue-700 text-white">
             Change Status
@@ -183,7 +252,14 @@ export default async function LoadDetailPage(props: { params: Promise<{ id: stri
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
-              {load.carrier_id ? (
+              {carrier ? (
+                <div>
+                  <p className="font-bold text-white text-lg mb-1">{carrier.company_name}</p>
+                  <p className="text-sm text-zinc-400 mb-1">MC: {carrier.mc_number} | DOT: {carrier.dot_number}</p>
+                  <p className="text-sm text-zinc-400 mb-3">Phone: {carrier.phone}</p>
+                  <p className="text-sm text-blue-400 hover:underline cursor-pointer">View Full Profile</p>
+                </div>
+              ) : load.carrier_id ? (
                 <div>
                   <p className="font-medium text-white mb-1">Carrier ID: {load.carrier_id}</p>
                   <p className="text-sm text-blue-400 hover:underline cursor-pointer">View Carrier Profile</p>
@@ -209,13 +285,21 @@ export default async function LoadDetailPage(props: { params: Promise<{ id: stri
             </CardHeader>
             <CardContent className="pt-6">
               <div className="text-center py-6 border-2 border-dashed border-zinc-800 rounded-lg">
-                <p className="text-zinc-500 mb-2">No documents attached</p>
+                <p className="text-zinc-500 mb-2">Manage attached documents</p>
                 <Button variant="link" className="text-blue-400">Upload Rate Con / BOL</Button>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      <SignaturePad
+        open={sigPadOpen}
+        onOpenChange={setSigPadOpen}
+        onSave={handleGenerateRateCon}
+        title="Sign Rate Confirmation"
+        description="Please provide your signature to generate and download the final rate confirmation PDF."
+      />
     </div>
   )
 }
