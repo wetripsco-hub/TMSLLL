@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { LoadRow, LoadStopRow, CarrierRow } from '@/types/database.types'
 import LoadStatusBadge from '@/components/loads/LoadStatusBadge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { MapPin, FileText, Truck, DollarSign, Download } from 'lucide-react'
+import { MapPin, FileText, Truck, DollarSign, Download, Link as LinkIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import SignaturePad from '@/components/documents/SignaturePad'
 import { generateRateConfirmation } from '@/lib/pdf'
@@ -119,6 +119,19 @@ export default function LoadDetailPage(props: { params: Promise<{ id: string }> 
           <Button variant="outline" className="bg-transparent border-zinc-700 text-white hover:bg-zinc-800">
             Edit Load
           </Button>
+
+          <Button
+            variant="secondary"
+            className="bg-zinc-800 text-white hover:bg-zinc-700"
+            onClick={() => {
+              navigator.clipboard.writeText(`${window.location.origin}/track/${load.id}`);
+              alert('Tracking link copied to clipboard!');
+            }}
+          >
+            <LinkIcon className="w-4 h-4 mr-2" />
+            Copy Tracking Link
+          </Button>
+
           <Button
             className="bg-purple-600 hover:bg-purple-700 text-white"
             onClick={() => setSigPadOpen(true)}

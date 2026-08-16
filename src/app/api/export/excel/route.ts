@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { exportToExcel } from '@/lib/excel';
 
 export async function POST(req: Request) {
   try {
