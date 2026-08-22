@@ -9,6 +9,7 @@ import {
 import { loadService } from '@/lib/services/loadService';
 import { DispatchLoad } from '@/types/tms';
 import { DispatchBadge } from '@/components/dispatch/DispatchBadge';
+import { EmptyState } from '@/components/ui/EmptyState';
 import * as XLSX from 'xlsx';
 
 export default function BrokerLoadsPage() {
@@ -199,6 +200,18 @@ export default function BrokerLoadsPage() {
                 })}
               </tbody>
             </table>
+
+            {filteredLoads.length === 0 && (
+              <div className="p-8">
+                <EmptyState
+                  icon={Truck}
+                  title="No Freight Loads Found"
+                  description="There are currently no loads matching your search query or status filter."
+                  actionLabel="Plan New Load"
+                  actionHref="/broker/loads/new"
+                />
+              </div>
+            )}
           </div>
         </div>
 

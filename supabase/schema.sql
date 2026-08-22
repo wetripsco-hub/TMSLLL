@@ -14,6 +14,8 @@ create table if not exists public.profiles (
   role text not null check (role in ('broker', 'dispatcher', 'admin')),
   phone text,
   avatar_url text,
+  status text default 'active' check (status in ('active', 'suspended', 'pending')),
+  last_active_at timestamp with time zone default timezone('utc'::text, now()) not null,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );

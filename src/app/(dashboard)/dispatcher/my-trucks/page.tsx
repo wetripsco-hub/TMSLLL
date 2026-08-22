@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { truckService } from '@/lib/services/truckService';
 import { TruckItem, DriverItem, EquipmentType } from '@/types/database.types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export default function MyTrucksPage() {
   const [trucks, setTrucks] = useState<TruckItem[]>([]);
@@ -163,6 +164,18 @@ export default function MyTrucksPage() {
           </div>
         ))}
       </div>
+
+      {filteredTrucks.length === 0 && (
+        <div className="p-8">
+          <EmptyState
+            icon={Truck}
+            title="No Managed Trucks Found"
+            description="You have not added any power units to your dispatch fleet yet, or no units matched your search."
+            actionLabel="Add Power Unit"
+            onActionClick={() => setIsAddModalOpen(true)}
+          />
+        </div>
+      )}
 
       {/* Add Truck Modal */}
       {isAddModalOpen && (

@@ -85,33 +85,47 @@ export default function LoginPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
               disabled={isLoading}
               onClick={() => handleDemoLogin('broker')}
-              className="p-3 rounded-xl border border-orange-200 dark:border-orange-500/30 bg-orange-50/50 hover:bg-orange-50 dark:bg-orange-500/10 dark:hover:bg-orange-500/20 text-left transition-all group"
+              className="p-2.5 rounded-xl border border-orange-200 dark:border-orange-500/30 bg-orange-50/50 hover:bg-orange-50 dark:bg-orange-500/10 dark:hover:bg-orange-500/20 text-left transition-all group"
             >
               <div className="flex items-center justify-between mb-1">
-                <Briefcase className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                <ArrowRight className="w-3.5 h-3.5 text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Briefcase className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
+                <ArrowRight className="w-3 h-3 text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
-              <div className="font-bold text-xs text-foreground">Freight Broker</div>
-              <div className="text-[10px] text-muted-foreground font-medium">3PL & Shipper CRM</div>
+              <div className="font-bold text-[11px] text-foreground">Broker (3PL)</div>
+              <div className="text-[9px] text-muted-foreground font-medium truncate">Shipper CRM</div>
             </button>
 
             <button
               type="button"
               disabled={isLoading}
               onClick={() => handleDemoLogin('dispatcher')}
-              className="p-3 rounded-xl border border-border bg-card hover:bg-muted text-left transition-all group"
+              className="p-2.5 rounded-xl border border-border bg-card hover:bg-muted text-left transition-all group"
             >
               <div className="flex items-center justify-between mb-1">
-                <Truck className="w-4 h-4 text-orange-500" />
-                <ArrowRight className="w-3.5 h-3.5 text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Truck className="w-3.5 h-3.5 text-orange-500" />
+                <ArrowRight className="w-3 h-3 text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
-              <div className="font-bold text-xs text-foreground">Truck Dispatcher</div>
-              <div className="text-[10px] text-muted-foreground font-medium">Fleet & Driver Roster</div>
+              <div className="font-bold text-[11px] text-foreground">Dispatcher</div>
+              <div className="text-[9px] text-muted-foreground font-medium truncate">Fleet Roster</div>
+            </button>
+
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={() => handleDemoLogin('admin')}
+              className="p-2.5 rounded-xl border border-purple-200 dark:border-purple-500/30 bg-purple-50/50 hover:bg-purple-50 dark:bg-purple-500/10 dark:hover:bg-purple-500/20 text-left transition-all group"
+            >
+              <div className="flex items-center justify-between mb-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                <ArrowRight className="w-3 h-3 text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <div className="font-bold text-[11px] text-foreground">Super Admin</div>
+              <div className="text-[9px] text-muted-foreground font-medium truncate">Platform Cockpit</div>
             </button>
           </div>
         </div>

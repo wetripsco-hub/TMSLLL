@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, Truck, FileText, Users, Briefcase, 
   DollarSign, Sparkles, Navigation, ShieldCheck, ChevronRight,
-  PlusCircle, BarChart3, Layers, UserCheck, RefreshCw, LogOut
+  PlusCircle, BarChart3, Layers, UserCheck, RefreshCw, LogOut, KeyRound, Server
 } from 'lucide-react';
 import { authService } from '@/lib/services/authService';
 import { UserProfile, UserRole } from '@/types/database.types';
@@ -25,13 +25,16 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
     setUser(active);
   }, []);
 
-  const isDispatcher = pathname.startsWith('/dispatcher') || user?.role === 'dispatcher';
-  const role: UserRole = isDispatcher ? 'dispatcher' : 'broker';
+  const isAdmin = pathname.startsWith('/admin') || user?.role === 'admin';
+  const isDispatcher = !isAdmin && (pathname.startsWith('/dispatcher') || user?.role === 'dispatcher');
+  const role: UserRole = isAdmin ? 'admin' : isDispatcher ? 'dispatcher' : 'broker';
 
   const handleSwitchRole = (newRole: UserRole) => {
     const updated = authService.setDemoSession(newRole);
     setUser(updated);
-    if (newRole === 'dispatcher') {
+    if (newRole === 'admin') {
+      router.push('/admin/dashboard');
+    } else if (newRole === 'dispatcher') {
       router.push('/dispatcher/dashboard');
     } else {
       router.push('/broker/dashboard');
@@ -75,22 +78,45 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
     },
   ];
 
-  const activeMenuGroups = isDispatcher ? dispatcherMenuGroups : brokerMenuGroups;
+  const adminMenuGroups = [
+    {
+      group: 'SUPERVISION & COCKPIT',
+      items: [
+        { label: 'Platform Overview', href: '/admin/dashboard', icon: LayoutDashboard, badge: 'Uptime' },
+        { label: 'User Directory & Roster', href: '/admin/users', icon: Users, badge: '6 Users' },
+        { label: 'Global Loads Registry', href: '/admin/loads', icon: Truck, badge: 'Cross-Tenant' },
+      ],
+    },
+    {
+      group: 'SERVICES & AI ENGINES',
+      items: [
+        { label: 'Gemini AI OCR Scanner', href: '/documents', icon: Sparkles, badge: 'AI OCR' },
+      ],
+    },
+  ];
+
+  const activeMenuGroups = isAdmin ? adminMenuGroups : isDispatcher ? dispatcherMenuGroups : brokerMenuGroups;
 
   return (
     <aside className="w-64 h-screen bg-[#1c2434] text-[#dee4ee] flex flex-col justify-between p-4 flex-shrink-0 z-40 border-r border-[#2e3a47] font-sans">
       {/* Brand Header */}
       <div className="space-y-5 overflow-y-auto pr-1">
         <Link href="/" className="flex items-center gap-3 px-2 pt-2 group">
-          <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/30 group-hover:scale-105 transition-transform">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform ${
+            isAdmin ? 'bg-purple-600 shadow-purple-500/30' : 'bg-orange-500 shadow-orange-500/30'
+          }`}>
             <Truck className="w-5 h-5 stroke-[2.5]" />
           </div>
           <div className="flex flex-col">
             <span className="font-extrabold text-base tracking-tight text-white flex items-center gap-1.5">
-              FreightFlow <span className="text-orange-400 font-mono text-xs px-1.5 py-0.2 rounded bg-orange-500/20 border border-orange-500/30">AI</span>
+              FreightFlow <span className={`font-mono text-xs px-1.5 py-0.2 rounded border ${
+                isAdmin ? 'text-purple-400 bg-purple-500/20 border-purple-500/30' : 'text-orange-400 bg-orange-500/20 border-orange-500/30'
+              }`}>AI</span>
             </span>
-            <span className="text-[10px] text-orange-400 font-bold uppercase tracking-wider">
-              {isDispatcher ? 'Dispatcher Portal' : 'Brokerage 3PL Portal'}
+            <span className={`text-[10px] font-bold uppercase tracking-wider ${
+              isAdmin ? 'text-purple-400' : 'text-orange-400'
+            }`}>
+              {isAdmin ? 'Super Admin Cockpit' : isDispatcher ? 'Dispatcher Portal' : 'Brokerage 3PL Portal'}
             </span>
           </div>
         </Link>
@@ -104,7 +130,12 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
               </div>
               {group.items.map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname === item.href || (item.href !== '/broker/dashboard' && item.href !== '/dispatcher/dashboard' && pathname.startsWith(item.href));
+                const isActive = pathname === item.href || (
+                  item.href !== '/broker/dashboard' && 
+                  item.href !== '/dispatcher/dashboard' && 
+                  item.href !== '/admin/dashboard' && 
+                  pathname.startsWith(item.href)
+                );
 
                 return (
                   <Link
@@ -113,7 +144,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                     onClick={onCloseMobile}
                     className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                       isActive
-                        ? 'bg-orange-500 text-white shadow-md shadow-orange-500/25 font-bold'
+                        ? `${isAdmin ? 'bg-purple-600 shadow-purple-500/25' : 'bg-orange-500 shadow-orange-500/25'} text-white shadow-md font-bold`
                         : 'text-slate-300 hover:text-white hover:bg-[#333a48]'
                     }`}
                   >
@@ -140,25 +171,29 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
         </nav>
       </div>
 
-      {/* Role Switcher & User Profile Footer */}
+      {/* 3-Way Role Switcher & User Profile Footer */}
       <div className="space-y-3 pt-3 border-t border-[#2e3a47]">
         <div className="p-2.5 bg-[#24303f] border border-[#2e3a47] rounded-xl space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="font-bold text-white flex items-center gap-1.5">
               <UserCheck className="w-3.5 h-3.5 text-orange-400" />
-              Active Workspace
+              Role Simulator
             </span>
-            <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 font-bold">
+            <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded font-bold border ${
+              isAdmin
+                ? 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+                : 'bg-orange-500/20 text-orange-400 border-orange-500/30'
+            }`}>
               {role}
             </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+          <div className="grid grid-cols-3 gap-1 text-[10px]">
             <button
               type="button"
               onClick={() => handleSwitchRole('broker')}
-              className={`py-1.5 px-2 rounded-lg text-center font-bold transition-all border ${
-                !isDispatcher
+              className={`py-1 px-1 rounded-lg text-center font-bold transition-all border ${
+                role === 'broker'
                   ? 'bg-orange-500 text-white border-orange-400 shadow-xs'
                   : 'bg-[#1c2434] text-slate-300 border-[#2e3a47] hover:text-white'
               }`}
@@ -168,13 +203,24 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
             <button
               type="button"
               onClick={() => handleSwitchRole('dispatcher')}
-              className={`py-1.5 px-2 rounded-lg text-center font-bold transition-all border ${
-                isDispatcher
+              className={`py-1 px-1 rounded-lg text-center font-bold transition-all border ${
+                role === 'dispatcher'
                   ? 'bg-orange-500 text-white border-orange-400 shadow-xs'
                   : 'bg-[#1c2434] text-slate-300 border-[#2e3a47] hover:text-white'
               }`}
             >
-              Dispatcher
+              Dispatch
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSwitchRole('admin')}
+              className={`py-1 px-1 rounded-lg text-center font-bold transition-all border ${
+                role === 'admin'
+                  ? 'bg-purple-600 text-white border-purple-400 shadow-xs'
+                  : 'bg-[#1c2434] text-slate-300 border-[#2e3a47] hover:text-white'
+              }`}
+            >
+              Admin
             </button>
           </div>
         </div>

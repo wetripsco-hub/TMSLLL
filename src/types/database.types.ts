@@ -13,6 +13,8 @@ export interface UserProfile {
   role: UserRole;
   phone?: string;
   avatarUrl?: string;
+  status?: 'active' | 'suspended' | 'pending';
+  lastActiveAt?: string;
   createdAt: string;
 }
 
