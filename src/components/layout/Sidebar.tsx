@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
-  LayoutDashboard, Truck, FileText, Users, Briefcase, 
+  LayoutDashboard, Truck, FileText, Users, Briefcase, Building,
   DollarSign, Sparkles, Navigation, ShieldCheck, ChevronRight,
   PlusCircle, BarChart3, Layers, UserCheck, RefreshCw, LogOut, KeyRound, Server
 } from 'lucide-react';
@@ -83,6 +83,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
       group: 'SUPERVISION & COCKPIT',
       items: [
         { label: 'Platform Overview', href: '/admin/dashboard', icon: LayoutDashboard, badge: 'Uptime' },
+        { label: 'Tenant Provisioning', href: '/admin/tenants', icon: Building, badge: 'Multi-Tenant' },
         { label: 'User Directory & Roster', href: '/admin/users', icon: Users, badge: '6 Users' },
         { label: 'Global Loads Registry', href: '/admin/loads', icon: Truck, badge: 'Cross-Tenant' },
       ],

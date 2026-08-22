@@ -49,55 +49,91 @@ export default function LandingPage() {
 
             {/* Main Headline */}
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground leading-[1.1]">
-              The AI-Automated TMS for{' '}
+              The Operating System for Modern{' '}
               <span className="bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 bg-clip-text text-transparent">
-                Freight Brokers & Dispatchers
+                Freight Brokerages & Dispatchers
               </span>
             </h1>
 
             {/* Subtitle */}
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
-              Automate high-velocity freight operations: instant AI document extraction, 1-click rate confirmations with e-signatures, friction-free driver GPS tracking, and real-time margin protection.
+              Unified cloud TMS engineered for commercial 3PL brokers and independent dispatch fleets: instant Gemini 2.0 OCR document parsing, automated carrier compliance audits, Margin Guard analytics, and live smartphone GPS telematics.
             </p>
 
-            {/* Dual Primary Segment CTAs */}
-            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4 max-w-2xl mx-auto">
-              <Link
-                href="/demo/broker"
-                className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-sm shadow-lg shadow-orange-500/25 transition-all transform hover:-translate-y-0.5"
-              >
-                <Briefcase className="w-4 h-4 stroke-[2.5]" />
-                <span>Explore Brokerage Demo</span>
-                <ChevronRight className="w-4 h-4 ml-1 stroke-[2.5]" />
-              </Link>
+            {/* Dual Commercial Selection Paths */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-2 text-left">
+              {/* Path 1: Brokerage Edition */}
+              <div className="p-5 rounded-2xl bg-card border border-orange-200 dark:border-orange-500/30 hover:border-orange-500 transition-all shadow-xs space-y-3 group">
+                <div className="flex items-center justify-between">
+                  <span className="p-2.5 rounded-xl bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400 font-bold">
+                    <Briefcase className="w-5 h-5" />
+                  </span>
+                  <span className="text-[10px] font-mono font-bold bg-orange-50 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400 px-2 py-0.5 rounded-full border border-orange-200 dark:border-orange-500/20">
+                    3PL EDITION
+                  </span>
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-foreground text-base">Freight Brokerage Edition</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                    Customer Shipper CRM, Experian credit limit pools, gross profit margins ($ / %), and live FMCSA SAFER safety registry audits.
+                  </p>
+                </div>
+                <div className="pt-1 flex items-center gap-2">
+                  <Link
+                    href="/demo/broker"
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs text-center shadow-md shadow-orange-500/20 transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <span>Launch Broker Sandbox</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
 
-              <Link
-                href="/demo/dispatcher"
-                className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-card hover:bg-muted text-foreground font-bold text-sm border border-border shadow-xs transition-all transform hover:-translate-y-0.5"
-              >
-                <Truck className="w-4 h-4 text-orange-500 stroke-[2.5]" />
-                <span>Explore Dispatcher Demo</span>
-                <ChevronRight className="w-4 h-4 ml-1 stroke-[2.5]" />
-              </Link>
+              {/* Path 2: Dispatcher Edition */}
+              <div className="p-5 rounded-2xl bg-card border border-border hover:border-orange-500 transition-all shadow-xs space-y-3 group">
+                <div className="flex items-center justify-between">
+                  <span className="p-2.5 rounded-xl bg-muted text-foreground font-bold">
+                    <Truck className="w-5 h-5 text-orange-500" />
+                  </span>
+                  <span className="text-[10px] font-mono font-bold bg-muted text-muted-foreground px-2 py-0.5 rounded-full border border-border">
+                    FLEET DISPATCH
+                  </span>
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-foreground text-base">Truck Dispatcher Edition</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                    Power unit fleet directory, assigned driver schedules, 5-12% commission yield slider, and 1-click mobile GPS tracking links.
+                  </p>
+                </div>
+                <div className="pt-1 flex items-center gap-2">
+                  <Link
+                    href="/demo/dispatcher"
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-card hover:bg-muted text-foreground font-extrabold text-xs text-center border border-border shadow-xs transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <span>Launch Dispatcher Sandbox</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-orange-500" />
+                  </Link>
+                </div>
+              </div>
             </div>
 
-            {/* Secondary Action */}
-            <div className="pt-2 flex items-center justify-center gap-4 text-xs text-muted-foreground font-medium">
+            {/* Buyer Actions Row */}
+            <div className="pt-3 flex flex-wrap items-center justify-center gap-3 text-xs">
               <button
                 onClick={() => setIsDemoModalOpen(true)}
-                className="hover:text-orange-600 transition-colors flex items-center gap-1.5 font-bold underline underline-offset-4 decoration-orange-300"
+                className="px-5 py-2.5 rounded-xl bg-card hover:bg-orange-50 hover:text-orange-700 dark:hover:bg-muted text-foreground font-bold border border-border shadow-xs transition-colors flex items-center gap-2"
               >
-                <Play className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
-                Book Live 1-on-1 Strategy Walkthrough
+                <Sparkles className="w-4 h-4 text-orange-500" />
+                <span>Request Enterprise Access / Dedicated Sandbox</span>
               </button>
-              <span>•</span>
-              <button
-                onClick={() => setIsVerifyOpen(true)}
-                className="hover:text-orange-600 transition-colors flex items-center gap-1.5 font-bold underline underline-offset-4 decoration-orange-300"
+
+              <Link
+                href="/signup"
+                className="px-5 py-2.5 rounded-xl bg-foreground text-background hover:bg-foreground/90 font-bold transition-all flex items-center gap-2 shadow-xs"
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-orange-500" />
-                Live FMCSA Safety Check
-              </button>
+                <span>Start Instant 14-Day Trial</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
 
             {/* Trust Badges */}
