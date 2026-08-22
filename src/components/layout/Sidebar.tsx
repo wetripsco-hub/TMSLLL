@@ -1,13 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, Truck, FileText, Users, Briefcase, 
   DollarSign, Sparkles, Navigation, ShieldCheck, ChevronRight,
-  PlusCircle, BarChart3, Layers
+  PlusCircle, BarChart3, Layers, UserCheck, RefreshCw, LogOut
 } from 'lucide-react';
+import { authService } from '@/lib/services/authService';
+import { UserProfile, UserRole } from '@/types/database.types';
 
 interface SidebarProps {
   onCloseMobile?: () => void;
@@ -15,52 +17,94 @@ interface SidebarProps {
 
 export function Sidebar({ onCloseMobile }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<UserProfile | null>(null);
 
-  const menuGroups = [
+  useEffect(() => {
+    const active = authService.getCurrentUser();
+    setUser(active);
+  }, []);
+
+  const isDispatcher = pathname.startsWith('/dispatcher') || user?.role === 'dispatcher';
+  const role: UserRole = isDispatcher ? 'dispatcher' : 'broker';
+
+  const handleSwitchRole = (newRole: UserRole) => {
+    const updated = authService.setDemoSession(newRole);
+    setUser(updated);
+    if (newRole === 'dispatcher') {
+      router.push('/dispatcher/dashboard');
+    } else {
+      router.push('/broker/dashboard');
+    }
+  };
+
+  const brokerMenuGroups = [
     {
-      group: 'MAIN DASHBOARD',
+      group: '3PL BROKERAGE OPERATIONS',
       items: [
-        { label: 'Command Center', href: '/dashboard', icon: LayoutDashboard, badge: 'Live' },
-        { label: 'Dispatch Board', href: '/loads', icon: Truck, badge: '5' },
-      ]
+        { label: 'Broker Command Center', href: '/broker/dashboard', icon: LayoutDashboard, badge: 'Live' },
+        { label: 'Dispatch Board', href: '/broker/loads', icon: Truck, badge: '5 Loads' },
+        { label: 'Shipper CRM & Credits', href: '/broker/shippers', icon: Users, badge: null },
+        { label: 'Carrier Compliance Hub', href: '/broker/carriers', icon: Briefcase, badge: 'FMCSA' },
+      ],
     },
     {
-      group: 'LOGISTICS & AI ENGINES',
+      group: 'FINANCIALS & AI AUTOMATION',
       items: [
-        { label: 'Gemini AI OCR Scanner', href: '/documents', icon: Sparkles, badge: 'AI' },
-        { label: 'Carrier Compliance Hub', href: '/carriers', icon: Briefcase, badge: null },
-        { label: 'Shipper CRM & Credits', href: '/shippers', icon: Users, badge: null },
-        { label: 'Accounting & Settlements', href: '/accounting', icon: DollarSign, badge: 'A/R' },
-      ]
-    }
+        { label: 'Accounting & Factoring', href: '/broker/accounting', icon: DollarSign, badge: 'A/R & A/P' },
+        { label: 'Gemini AI OCR Scanner', href: '/documents', icon: Sparkles, badge: 'AI OCR' },
+      ],
+    },
   ];
 
+  const dispatcherMenuGroups = [
+    {
+      group: 'FLEET DISPATCH OPERATIONS',
+      items: [
+        { label: 'Fleet Command Center', href: '/dispatcher/dashboard', icon: LayoutDashboard, badge: 'Live' },
+        { label: 'My Trucks & Drivers', href: '/dispatcher/my-trucks', icon: Truck, badge: '4 Units' },
+        { label: 'My Assigned Loads', href: '/dispatcher/loads', icon: Briefcase, badge: 'Active' },
+        { label: 'Live GPS Telematics', href: '/dispatcher/tracking', icon: Navigation, badge: 'GPS' },
+      ],
+    },
+    {
+      group: 'INTELLIGENCE & TOOLS',
+      items: [
+        { label: 'Gemini AI OCR Scanner', href: '/documents', icon: Sparkles, badge: 'AI OCR' },
+      ],
+    },
+  ];
+
+  const activeMenuGroups = isDispatcher ? dispatcherMenuGroups : brokerMenuGroups;
+
   return (
-    <aside className="w-64 h-screen bg-[#1c2434] text-[#dee4ee] flex flex-col justify-between p-4 flex-shrink-0 z-40 border-r border-[#2e3a47]">
+    <aside className="w-64 h-screen bg-[#1c2434] text-[#dee4ee] flex flex-col justify-between p-4 flex-shrink-0 z-40 border-r border-[#2e3a47] font-sans">
       {/* Brand Header */}
-      <div className="space-y-6">
+      <div className="space-y-5 overflow-y-auto pr-1">
         <Link href="/" className="flex items-center gap-3 px-2 pt-2 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white shadow-lg shadow-orange-500/30 group-hover:scale-105 transition-transform">
+          <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/30 group-hover:scale-105 transition-transform">
             <Truck className="w-5 h-5 stroke-[2.5]" />
           </div>
           <div className="flex flex-col">
             <span className="font-extrabold text-base tracking-tight text-white flex items-center gap-1.5">
               FreightFlow <span className="text-orange-400 font-mono text-xs px-1.5 py-0.2 rounded bg-orange-500/20 border border-orange-500/30">AI</span>
             </span>
-            <span className="text-[10px] text-slate-400 -mt-0.5 tracking-wider uppercase font-bold">TailAdmin Logistics</span>
+            <span className="text-[10px] text-orange-400 font-bold uppercase tracking-wider">
+              {isDispatcher ? 'Dispatcher Portal' : 'Brokerage 3PL Portal'}
+            </span>
           </div>
         </Link>
 
         {/* Navigation Groups */}
         <nav className="space-y-5">
-          {menuGroups.map((group, gIdx) => (
+          {activeMenuGroups.map((group, gIdx) => (
             <div key={gIdx} className="space-y-1.5">
               <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 {group.group}
               </div>
               {group.items.map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+                const isActive = pathname === item.href || (item.href !== '/broker/dashboard' && item.href !== '/dispatcher/dashboard' && pathname.startsWith(item.href));
 
                 return (
                   <Link
@@ -81,7 +125,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                       <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
                         isActive
                           ? 'bg-white/20 text-white'
-                          : item.badge === 'AI'
+                          : item.badge === 'AI OCR'
                           ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
                           : 'bg-[#333a48] text-slate-300'
                       }`}>
@@ -96,37 +140,53 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
         </nav>
       </div>
 
-      {/* Sandbox & Interactive Mode Footer */}
-      <div className="space-y-3 pt-4 border-t border-[#2e3a47]">
-        <div className="p-3 bg-[#24303f] border border-[#2e3a47] rounded-2xl space-y-2">
+      {/* Role Switcher & User Profile Footer */}
+      <div className="space-y-3 pt-3 border-t border-[#2e3a47]">
+        <div className="p-2.5 bg-[#24303f] border border-[#2e3a47] rounded-xl space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="font-bold text-white flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-orange-400" />
-              TailAdmin Sandboxes
+              <UserCheck className="w-3.5 h-3.5 text-orange-400" />
+              Active Workspace
+            </span>
+            <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 font-bold">
+              {role}
             </span>
           </div>
-          <p className="text-[10px] text-slate-400">Switch simulation profiles with preloaded test freight.</p>
+
           <div className="grid grid-cols-2 gap-1.5 text-[11px]">
-            <Link
-              href="/demo/broker"
-              className="py-1.5 px-2 bg-[#1c2434] hover:bg-orange-500 hover:text-white text-slate-200 text-center rounded-lg border border-[#2e3a47] transition-all font-semibold"
+            <button
+              type="button"
+              onClick={() => handleSwitchRole('broker')}
+              className={`py-1.5 px-2 rounded-lg text-center font-bold transition-all border ${
+                !isDispatcher
+                  ? 'bg-orange-500 text-white border-orange-400 shadow-xs'
+                  : 'bg-[#1c2434] text-slate-300 border-[#2e3a47] hover:text-white'
+              }`}
             >
-              Broker 3PL
-            </Link>
-            <Link
-              href="/demo/dispatcher"
-              className="py-1.5 px-2 bg-[#1c2434] hover:bg-orange-500 hover:text-white text-slate-200 text-center rounded-lg border border-[#2e3a47] transition-all font-semibold"
+              Broker
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSwitchRole('dispatcher')}
+              className={`py-1.5 px-2 rounded-lg text-center font-bold transition-all border ${
+                isDispatcher
+                  ? 'bg-orange-500 text-white border-orange-400 shadow-xs'
+                  : 'bg-[#1c2434] text-slate-300 border-[#2e3a47] hover:text-white'
+              }`}
             >
               Dispatcher
-            </Link>
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center justify-between px-2 text-[11px] text-slate-400">
-          <span className="font-mono">v2.8 TailAdmin OS</span>
+        <div className="flex items-center justify-between px-1 text-[11px] text-slate-400">
+          <Link href="/login" className="hover:text-orange-400 flex items-center gap-1 font-semibold transition-colors">
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Switch Account</span>
+          </Link>
           <span className="flex items-center gap-1 text-orange-400 font-mono font-semibold">
             <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
-            Live Sync
+            v2.8 Live
           </span>
         </div>
       </div>

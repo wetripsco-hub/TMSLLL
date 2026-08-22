@@ -128,29 +128,30 @@ export interface CarrierProfile {
   contactName: string;
   phone: string;
   email: string;
-  address: string;
+  address?: string;
   city: string;
   state: string;
-  zip: string;
-  status: 'active' | 'pending_review' | 'inactive' | 'blacklisted';
+  zip?: string;
+  status?: 'active' | 'pending_review' | 'inactive' | 'blacklisted';
   safetyRating: 'Satisfactory' | 'Conditional' | 'Unrated';
   safetyScore: number; // 0-100
   insuranceCompany: string;
-  insurancePolicyNumber: string;
+  insurancePolicyNumber?: string;
   insuranceCoverageAmount: number;
   insuranceExpiration: string;
   daysToInsuranceExpiry: number;
-  w9Verified: boolean;
-  coiVerified: boolean;
-  authorityActive: boolean;
-  equipmentFleet: EquipmentType[];
-  totalLoadsCompleted: number;
-  onTimeDeliveryRate: number; // percentage
-  averageRatePerMile: number;
+  w9Verified?: boolean;
+  coiVerified?: boolean;
+  authorityActive?: boolean;
+  equipmentFleet?: EquipmentType[];
+  totalLoadsCompleted?: number;
+  onTimeDeliveryRate?: number; // percentage
+  averageRatePerMile?: number;
   factoringCompany?: string;
   factoringEmail?: string;
+  preferred?: boolean;
   notes?: string;
-  createdAt: string;
+  createdAt?: string;
 }
 
 export interface ShipperProfile {
@@ -160,23 +161,28 @@ export interface ShipperProfile {
   contactName: string;
   phone: string;
   email: string;
-  billingAddress: string;
+  address?: string;
+  billingAddress?: string;
   city: string;
   state: string;
-  zip: string;
-  creditScore: number; // Experian credit score (0-100)
+  zip?: string;
+  creditScore?: number; // Experian credit score (0-100)
   creditLimit: number;
   availableCredit: number;
-  paymentTerms: 'Net 15' | 'Net 30' | 'Net 45' | 'QuickPay 2%';
-  status: 'active' | 'credit_hold' | 'inactive';
-  totalLoadsBooked: number;
-  mtdVolume: number;
-  ytdVolume: number;
-  primaryCommodity: string;
-  rating: number;
+  paymentTerms: string;
+  status?: 'active' | 'credit_hold' | 'inactive';
+  creditStatus?: string;
+  activeLoadsCount?: number;
+  totalLoadsBooked?: number;
+  mtdVolume?: number;
+  ytdVolume?: number;
+  primaryCommodity?: string;
+  rating?: number;
   notes?: string;
-  createdAt: string;
+  createdAt?: string;
 }
+
+export type ShipperAccount = ShipperProfile;
 
 export interface DocumentScanResult {
   id: string;
