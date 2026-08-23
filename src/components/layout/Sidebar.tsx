@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, Truck, FileText, Users, Briefcase, Building,
   DollarSign, Sparkles, Navigation, ShieldCheck, ChevronRight,
-  PlusCircle, BarChart3, Layers, UserCheck, RefreshCw, LogOut, KeyRound, Server
+  PlusCircle, BarChart3, Layers, UserCheck, RefreshCw, LogOut, KeyRound, Server, Activity
 } from 'lucide-react';
 import { authService } from '@/lib/services/authService';
 import { UserProfile, UserRole } from '@/types/database.types';
@@ -65,14 +65,15 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
       group: 'FLEET DISPATCH OPERATIONS',
       items: [
         { label: 'Fleet Command Center', href: '/dispatcher/dashboard', icon: LayoutDashboard, badge: 'Live' },
-        { label: 'My Trucks & Drivers', href: '/dispatcher/my-trucks', icon: Truck, badge: '4 Units' },
+        { label: 'My Trucks & Fleet', href: '/dispatcher/my-trucks', icon: Truck, badge: '4 Units' },
         { label: 'My Assigned Loads', href: '/dispatcher/loads', icon: Briefcase, badge: 'Active' },
         { label: 'Live GPS Telematics', href: '/dispatcher/tracking', icon: Navigation, badge: 'GPS' },
       ],
     },
     {
-      group: 'INTELLIGENCE & TOOLS',
+      group: 'SETTLEMENTS & TOOLS',
       items: [
+        { label: 'Factoring & Billing', href: '/dispatcher/billing', icon: DollarSign, badge: 'Payouts' },
         { label: 'Gemini AI OCR Scanner', href: '/documents', icon: Sparkles, badge: 'AI OCR' },
       ],
     },
@@ -89,8 +90,9 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
       ],
     },
     {
-      group: 'SERVICES & AI ENGINES',
+      group: 'SYSTEM & AI ENGINES',
       items: [
+        { label: 'System Diagnostics & API', href: '/admin/system', icon: Activity, badge: 'Monitor' },
         { label: 'Gemini AI OCR Scanner', href: '/documents', icon: Sparkles, badge: 'AI OCR' },
       ],
     },
