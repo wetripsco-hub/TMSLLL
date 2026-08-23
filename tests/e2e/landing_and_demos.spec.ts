@@ -5,12 +5,12 @@ test.describe('Landing Page and Sandbox Demos E2E', () => {
     await page.goto('/');
 
     // Check main title
-    await expect(page.locator('h1')).toContainText('The Operating System for Modern');
-    await expect(page.locator('h1')).toContainText('Freight Brokerages & Dispatchers');
+    await expect(page.locator('h1')).toContainText('The AI-Powered Operating System for');
+    await expect(page.locator('h1')).toContainText('Freight Brokers & Dispatchers');
 
-    // Verify dual commercial paths exist
-    const brokerCta = page.getByRole('link', { name: /Launch Broker Sandbox/i });
-    const dispatcherCta = page.getByRole('link', { name: /Launch Dispatcher Sandbox/i });
+    // Verify dual sandbox CTAs exist
+    const brokerCta = page.getByRole('link', { name: /Try Broker Sandbox/i });
+    const dispatcherCta = page.getByRole('link', { name: /Try Dispatcher Sandbox/i });
 
     await expect(brokerCta).toBeVisible();
     await expect(dispatcherCta).toBeVisible();
